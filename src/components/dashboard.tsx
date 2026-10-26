@@ -1,5 +1,6 @@
 "use client";
 
+import { useId, type ReactNode } from "react";
 import { Airdrop } from "./airdrop";
 import { Funding } from "./funding";
 import { Liquidity } from "./liquidity";
@@ -9,7 +10,7 @@ import { Traders } from "./traders";
 import { ErrorBox } from "./ui";
 import { ago, pct, price } from "@/lib/format";
 import { useHash, useJson, useNow } from "@/lib/hooks";
-import { REFERRAL_CODE, REFERRAL_URL } from "@/lib/links";
+import { DEV_X_HANDLE, DEV_X_URL, REFERRAL_CODE, REFERRAL_URL, TELEGRAM_HANDLE, TELEGRAM_URL } from "@/lib/links";
 import type { LeaderWindow, Market, Overview as OverviewData } from "@/lib/types";
 
 const TABS = [
@@ -52,7 +53,7 @@ export function Dashboard({ initial }: { initial: OverviewData }) {
     <div className="flex min-h-full flex-col">
       <ReferralBanner />
 
-      <header className="sticky top-0 z-20 border-b border-line bg-[#1a0b20]/60 backdrop-blur-xl">
+      <header className="sticky top-0 z-20 border-b border-line bg-[#06150f]/60 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
           <a href="#overview" onClick={() => window.scrollTo({ top: 0 })} className="flex items-center gap-2.5">
             <Logo />
@@ -81,6 +82,8 @@ export function Dashboard({ initial }: { initial: OverviewData }) {
         {tab === "liquidity" && <Liquidity />}
         {tab === "airdrop" && <Airdrop now={now} />}
       </main>
+
+      <Footer />
     </div>
   );
 }
@@ -114,7 +117,7 @@ function ReferralBanner() {
       href={REFERRAL_URL}
       target="_blank"
       rel="noopener noreferrer"
-      className="group relative block overflow-hidden border-b border-white/10 bg-gradient-to-r from-[#f0abfc]/20 via-[#a78bfa]/20 to-[#818cf8]/20"
+      className="group relative block overflow-hidden border-b border-white/10 bg-gradient-to-r from-[#6ee7b7]/20 via-[#22d3ee]/15 to-[#7dd3fc]/20"
     >
       <div className="mx-auto flex max-w-7xl items-center justify-center gap-3 px-4 py-2 text-xs sm:px-6 sm:text-sm">
         <span className="text-ink">
@@ -158,25 +161,71 @@ function Ticker({ markets }: { markets: Market[] }) {
   );
 }
 
+function Footer() {
+  return (
+    <footer className="border-t border-line bg-[#06150f]/50 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 sm:flex-row sm:px-6">
+        <div className="flex items-center gap-2.5">
+          <Logo />
+          <div>
+            <div className="text-sm font-semibold text-ink">RiseLlama</div>
+            <div className="text-xs text-muted">Built by @{DEV_X_HANDLE}</div>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <SocialLink href={DEV_X_URL} label={`Follow @${DEV_X_HANDLE} on X`}>
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden>
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
+            Follow @{DEV_X_HANDLE}
+          </SocialLink>
+          <SocialLink href={TELEGRAM_URL} label={`Join @${TELEGRAM_HANDLE} on Telegram`}>
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden>
+              <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z" />
+            </svg>
+            @{TELEGRAM_HANDLE}
+          </SocialLink>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function SocialLink({ href, label, children }: { href: string; label: string; children: ReactNode }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      className="glass-card inline-flex items-center gap-2 rounded-xl border border-line bg-white/5 px-3.5 py-2 text-sm font-medium text-ink transition-colors hover:bg-white/10"
+    >
+      {children}
+    </a>
+  );
+}
+
 function Logo() {
+  // Unique per instance: the logo renders in both the header and the footer.
+  const gradientId = useId();
   return (
     <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden>
       <defs>
-        <linearGradient id="logo-g" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#f0abfc" />
-          <stop offset="1" stopColor="#818cf8" />
+        <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#6ee7b7" />
+          <stop offset="1" stopColor="#7dd3fc" />
         </linearGradient>
       </defs>
-      <rect width="28" height="28" rx="8" fill="url(#logo-g)" />
+      <rect width="28" height="28" rx="8" fill={`url(#${gradientId})`} />
       <path
         d="M7 19.5 11.5 13l3 3.5L21 8.5"
         fill="none"
-        stroke="#1b0b22"
+        stroke="#04140e"
         strokeWidth="2.4"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="21" cy="8.5" r="2" fill="#1b0b22" />
+      <circle cx="21" cy="8.5" r="2" fill="#04140e" />
     </svg>
   );
 }

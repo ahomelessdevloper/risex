@@ -1,21 +1,21 @@
 @import "tailwindcss";
 
-/* One dark theme painted over the purple → mauve page gradient; cards are frosted glass. */
+/* One dark theme painted over the green → slate page gradient; cards are frosted glass. */
 :root {
   color-scheme: dark;
-  --page: #2e1437;
-  --surface: rgba(20, 10, 26, 0.7);
+  --page: #056b3b;
+  --surface: rgba(6, 18, 16, 0.68);
   /* Opaque stand-in for the glass, used where marks need a solid ring or gap. */
-  --surface-solid: #24142b;
+  --surface-solid: #0f221e;
   --wash: rgba(255, 255, 255, 0.06);
-  --text: #f5f0f7;
-  --text-2: #cfc6d6;
-  --muted: #a99fb1;
+  --text: #f1f7f5;
+  --text-2: #c5d3d0;
+  --muted: #9fb1ad;
   --grid: rgba(255, 255, 255, 0.08);
   --axis: rgba(255, 255, 255, 0.18);
   --border: rgba(255, 255, 255, 0.1);
-  --accent: #c9a7ff;
-  --accent-2: #f0abfc;
+  --accent: #7dd3fc;
+  --accent-2: #6ee7b7;
   --up: #0ca30c;
   --down: #ef6b6b;
   --series-1: #3987e5;
@@ -47,9 +47,9 @@
 }
 
 html {
-  background: #948e99; /* fallback for old browsers */
-  background: -webkit-linear-gradient(to right, #2e1437, #948e99);
-  background: linear-gradient(to right, #2e1437, #948e99);
+  background: #516b8b; /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #056b3b, #516b8b);
+  background: linear-gradient(to right, #056b3b, #516b8b);
   background-attachment: fixed;
   min-height: 100%;
 }
@@ -76,28 +76,28 @@ body {
 
 .hero-glow {
   background-image:
-    radial-gradient(120% 90% at 0% 0%, rgba(240, 171, 252, 0.16), transparent 60%),
-    radial-gradient(90% 80% at 100% 100%, rgba(129, 140, 248, 0.14), transparent 60%);
+    radial-gradient(120% 90% at 0% 0%, rgba(110, 231, 183, 0.16), transparent 60%),
+    radial-gradient(90% 80% at 100% 100%, rgba(125, 211, 252, 0.14), transparent 60%);
 }
 
 .text-gradient {
-  background: linear-gradient(90deg, #ffffff 0%, #ead9ff 55%, #f0abfc 100%);
+  background: linear-gradient(90deg, #ffffff 0%, #d1fae5 55%, #7dd3fc 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
 .btn-glow {
-  background: linear-gradient(90deg, #f0abfc, #a78bfa);
-  color: #1b0b22;
-  box-shadow: 0 6px 24px -8px rgba(240, 171, 252, 0.7);
+  background: linear-gradient(90deg, #6ee7b7, #7dd3fc);
+  color: #04140e;
+  box-shadow: 0 6px 24px -8px rgba(110, 231, 183, 0.7);
   transition:
     transform 150ms ease,
     box-shadow 150ms ease;
 }
 .btn-glow:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 28px -8px rgba(240, 171, 252, 0.9);
+  box-shadow: 0 10px 28px -8px rgba(110, 231, 183, 0.9);
 }
 
 .live-dot {

@@ -7,18 +7,20 @@ import { useJson } from "@/lib/hooks";
 import { REFERRAL_URL } from "@/lib/links";
 import type { PointsInfo } from "@/lib/types";
 
-const STORAGE_KEY = "risellama:airdrop";
+// v2: the default total changed to 11.5M, so earlier saved inputs are not reused.
+const STORAGE_KEY = "risellama:airdrop:v2";
+const DEFAULT_TOTAL = 11.5e6;
 const SUPPLY_PCTS = [20, 25, 30] as const;
 const FDV_PRESETS = [100e6, 250e6, 500e6, 1e9, 2e9, 5e9];
 
 interface Inputs {
   myPoints: string;
-  /** null until the user types a total; the live Season 1 total is used meanwhile. */
+  /** null tracks the live Season 1 total from the API. */
   totalPoints: string | null;
   fdv: string;
 }
 
-const DEFAULTS: Inputs = { myPoints: "1,000", totalPoints: null, fdv: "500M" };
+const DEFAULTS: Inputs = { myPoints: "1,000", totalPoints: "11.5M", fdv: "500M" };
 
 function loadInputs(): Inputs {
   if (typeof window === "undefined") return DEFAULTS;
@@ -80,19 +82,27 @@ export function Airdrop({ now }: { now: number }) {
               hint={total != null ? `${fullNum(total)} pts` : "Enter a number"}
               invalid={total == null || total <= 0}
               chips={
-                info && (
-                  <>
-                    <Chip
-                      active={inputs.totalPoints === null}
-                      onClick={() => set({ totalPoints: null })}
-                    >
-                      Live S1 · {compactNum(info.distributedPoints)}
-                    </Chip>
-                    <Chip onClick={() => set({ totalPoints: count(info.seasonPoints) })}>
-                      Full S1 · {compactNum(info.seasonPoints)}
-                    </Chip>
-                  </>
-                )
+                <>
+                  <Chip
+                    active={inputs.totalPoints !== null && total === DEFAULT_TOTAL}
+                    onClick={() => set({ totalPoints: compactNum(DEFAULT_TOTAL) })}
+                  >
+                    Default · {compactNum(DEFAULT_TOTAL)}
+                  </Chip>
+                  {info && (
+                    <>
+                      <Chip active={inputs.totalPoints === null} onClick={() => set({ totalPoints: null })}>
+                        Live S1 · {compactNum(info.distributedPoints)}
+                      </Chip>
+                      <Chip
+                        active={inputs.totalPoints !== null && total === info.seasonPoints}
+                        onClick={() => set({ totalPoints: compactNum(info.seasonPoints) })}
+                      >
+                        Full S1 · {compactNum(info.seasonPoints)}
+                      </Chip>
+                    </>
+                  )}
+                </>
               }
             />
             <AmountField
@@ -219,9 +229,9 @@ export function Airdrop({ now }: { now: number }) {
 
       <Note>
         Hypothetical estimate. RISEx has not announced a token, supply split or points conversion. Value per point =
-        launch FDV × airdrop share ÷ total points. The live total counts Ignite Season 1 drops so far (200K points a
-        week since 20 July 2026, per the RISEx docs); Season 0 retroactive points aren&apos;t published, so they are not
-        included. Your inputs are saved in this browser.
+        launch FDV × airdrop share ÷ total points. Total points defaults to 11.5M; the Live S1 preset counts Ignite
+        Season 1 drops so far (200K points a week since 20 July 2026, per the RISEx docs). Your inputs are saved in
+        this browser.
       </Note>
     </div>
   );

@@ -9,9 +9,9 @@ Unofficial analytics dashboard for [RISEx](https://rise.trade), the fully onchai
 - **Funding**: OI-weighted funding APR, current funding per market, and 30 days of hourly funding history for any market.
 - **Traders**: top 100 accounts by volume, fees or liquidations over 24h, 7d or 14d, with share of total exchange volume.
 - **Liquidity**: spread and resting order-book depth within ±0.5/1/2% of mid for every market.
-- **Airdrop**: calculator for your points' value at a given launch FDV and 20/25/30% airdrop supply, plus a FDV sensitivity table and a live countdown to the next weekly points drop. The total-points default is Ignite Season 1 drops so far (200K points a week).
+- **Airdrop**: calculator for your points' value at a given launch FDV and 20/25/30% airdrop supply, plus a FDV sensitivity table and a live countdown to the next weekly points drop. Total points defaults to 11.5M, with presets for Ignite Season 1 drops so far and a full season (200K points a week).
 
-The referral link at the top of the page lives in `src/lib/links.ts`.
+The referral link at the top of the page and the X / Telegram links in the footer live in `src/lib/links.ts`.
 
 ## Data sources
 
