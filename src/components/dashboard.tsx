@@ -117,18 +117,27 @@ function ReferralBanner() {
       href={REFERRAL_URL}
       target="_blank"
       rel="noopener noreferrer"
-      className="group relative block overflow-hidden border-b border-white/10 bg-gradient-to-r from-[#6ee7b7]/20 via-[#22d3ee]/15 to-[#7dd3fc]/20"
+      className="group relative block overflow-hidden border-b border-[#eab308]/70 bg-gradient-to-r from-[#fef08a] via-[#fde047] to-[#facc15] text-[#1f1700]"
     >
       <div className="mx-auto flex max-w-7xl items-center justify-center gap-3 px-4 py-2 text-xs sm:px-6 sm:text-sm">
-        <span className="text-ink">
-          <span className="hidden sm:inline">Trade perps on RISEx and earn points for the airdrop · </span>
-          <span className="sm:hidden">Earn RISEx points · </span>
+        <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="currentColor" aria-hidden>
+          <path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12L13 2z" />
+        </svg>
+        <span className="font-medium">
+          <span className="hidden sm:inline">
+            Trade perps on RISEx and <strong className="font-bold">earn points for the airdrop</strong> ·{" "}
+          </span>
+          <span className="sm:hidden">
+            <strong className="font-bold">Earn RISEx points</strong> ·{" "}
+          </span>
           <span className="whitespace-nowrap">
             invite code{" "}
-            <span className="rounded-md bg-white/15 px-1.5 py-0.5 font-mono text-xs font-semibold">{REFERRAL_CODE}</span>
+            <span className="rounded-md bg-black/10 px-1.5 py-0.5 font-mono text-xs font-bold ring-1 ring-black/15">
+              {REFERRAL_CODE}
+            </span>
           </span>
         </span>
-        <span className="btn-glow inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg px-3 py-1 text-xs font-semibold">
+        <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg bg-[#1f1700] px-3 py-1 text-xs font-semibold text-[#fde047] shadow-sm transition-transform group-hover:-translate-y-px">
           Join RISEx <span aria-hidden>↗</span>
         </span>
       </div>
