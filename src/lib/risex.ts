@@ -129,11 +129,11 @@ function toMarket(m: RawMarket): Market {
   };
 }
 
-export async function getMarkets(): Promise<Market[]> {
+export async function getMarkets(): Promise<{ updatedAt: number; markets: Market[] }> {
   "use cache";
   cacheLife({ stale: 30, revalidate: 30, expire: 300 });
   const raw = await fetchRawMarkets();
-  return raw.filter((m) => m.active).map(toMarket);
+  return { updatedAt: Date.now(), markets: raw.filter((m) => m.active).map(toMarket) };
 }
 
 /** USDC held by the RISEx CollateralManager, read live from RISE chain. */
@@ -179,8 +179,10 @@ export async function getVolumeHistory(): Promise<VolumeHistory> {
 
   const days = new Map<number, DayVolume>();
   const perMarket = new Map<string, MarketVolume>();
-  const cut7 = now - 7 * DAY_MS;
-  const cut30 = now - 30 * DAY_MS;
+  // 7d / 30d windows cover the last N complete UTC days.
+  const today = Math.floor(now / DAY_MS) * DAY_MS;
+  const cut7 = today - 7 * DAY_MS;
+  const cut30 = today - 30 * DAY_MS;
 
   // Delisted duplicates (e.g. an old DOGE market) fold into the live market for that symbol.
   const live = new Map(
@@ -210,8 +212,8 @@ export async function getVolumeHistory(): Promise<VolumeHistory> {
       day[category] += usd;
       days.set(t, day);
       mv.all += usd;
-      if (t + DAY_MS > cut30) mv.v30d += usd;
-      if (t + DAY_MS > cut7) mv.v7d += usd;
+      if (t >= cut30 && t < today) mv.v30d += usd;
+      if (t >= cut7 && t < today) mv.v7d += usd;
     }
     if (m.active || mv.all > 0) perMarket.set(symbol, mv);
   });
@@ -259,7 +261,7 @@ const settle = <T,>(p: Promise<T>): Promise<T | null> =>
   });
 
 export async function getOverview(): Promise<Overview> {
-  const [markets, tvl, volume, oiHistory, tvlHistory] = await Promise.all([
+  const [{ updatedAt, markets }, tvl, volume, oiHistory, tvlHistory] = await Promise.all([
     getMarkets(),
     settle(getTvl()),
     settle(getVolumeHistory()),
@@ -267,7 +269,7 @@ export async function getOverview(): Promise<Overview> {
     settle(getTvlHistory()),
   ]);
   return {
-    updatedAt: Date.now(),
+    updatedAt,
     markets,
     tvl: tvl ?? tvlHistory?.at(-1)?.v ?? null,
     volume,
