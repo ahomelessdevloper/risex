@@ -60,3 +60,28 @@ export const countdown = (ms: number, now: number) => {
   const m = Math.floor(s / 60);
   return `${String(m).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 };
+
+/** "1d 4h", "15h 32m", "12m" */
+export const duration = (ms: number) => {
+  const m = Math.max(0, Math.floor(ms / 60_000));
+  const d = Math.floor(m / 1440);
+  const h = Math.floor((m % 1440) / 60);
+  if (d) return `${d}d ${h}h`;
+  return h ? `${h}h ${m % 60}m` : `${m % 60}m`;
+};
+
+/** Parses "1,250", "2.6m", "500M", "1.5b" or "$750k". Returns null when it isn't a number. */
+export const parseAmount = (s: string): number | null => {
+  const m = s.trim().replace(/[$,\s_]/g, "").match(/^(\d*\.?\d+)([kmb])?$/i);
+  if (!m) return null;
+  const mult = { k: 1e3, m: 1e6, b: 1e9 }[(m[2] ?? "").toLowerCase() as "k" | "m" | "b"] ?? 1;
+  return Number(m[1]) * mult;
+};
+
+/** Value of a single point: enough decimals to stay meaningful below a cent. */
+export const usdPrecise = (n: number | null | undefined) => {
+  if (n == null || !Number.isFinite(n)) return "—";
+  if (Math.abs(n) >= 1000) return usd(n);
+  const digits = Math.abs(n) >= 1 ? 2 : Math.abs(n) >= 0.01 ? 4 : 6;
+  return `$${n.toLocaleString("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits })}`;
+};

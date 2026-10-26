@@ -16,6 +16,19 @@ import { day, usd, usdTick } from "@/lib/format";
 
 const tick = { fill: "var(--muted)", fontSize: 11 };
 
+/** Round axis ticks (steps of 1, 2, 2.5 or 5 × 10^n) spanning [min, max], always including 0. */
+function niceTicks(min: number, max: number, count = 4): number[] {
+  const lo = Math.min(0, min);
+  const hi = Math.max(0, max);
+  if (hi === lo) return [0];
+  const raw = (hi - lo) / count;
+  const mag = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= raw * 0.8)!;
+  const ticks: number[] = [];
+  for (let v = Math.floor(lo / step) * step; v < hi + step - 1e-9; v += step) ticks.push(Number(v.toPrecision(12)));
+  return ticks;
+}
+
 export interface SeriesDef<K extends string> {
   key: K;
   label: string;
@@ -32,7 +45,7 @@ function TooltipBox({
   total?: string;
 }) {
   return (
-    <div className="min-w-44 rounded-lg border border-line bg-surface px-3 py-2 text-xs shadow-lg">
+    <div className="min-w-44 rounded-xl border border-line bg-[var(--surface-solid)]/95 px-3 py-2 text-xs shadow-xl backdrop-blur">
       <div className="mb-1.5 text-muted">{title}</div>
       {total && (
         <div className="mb-1 flex items-baseline justify-between gap-4">
@@ -66,6 +79,7 @@ export function StackedBars<K extends string, T extends { t: number } & Record<K
   labelFormat?: (t: number) => string;
 }) {
   const dense = data.length > 45;
+  const ticks = niceTicks(0, Math.max(0, ...data.map((d) => series.reduce((s, x) => s + (d[x.key] || 0), 0))));
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: 0 }} barCategoryGap={dense ? 1 : "20%"}>
@@ -78,7 +92,15 @@ export function StackedBars<K extends string, T extends { t: number } & Record<K
           axisLine={{ stroke: "var(--axis)" }}
           minTickGap={28}
         />
-        <YAxis tickFormatter={usdTick} tick={tick} tickLine={false} axisLine={false} width={52} />
+        <YAxis
+          tickFormatter={usdTick}
+          ticks={ticks}
+          domain={[ticks[0], ticks.at(-1)!]}
+          tick={tick}
+          tickLine={false}
+          axisLine={false}
+          width={52}
+        />
         <Tooltip
           cursor={{ fill: "var(--wash)" }}
           isAnimationActive={false}
@@ -103,7 +125,7 @@ export function StackedBars<K extends string, T extends { t: number } & Record<K
             stackId="stack"
             fill={s.color}
             maxBarSize={24}
-            stroke="var(--surface)"
+            stroke="var(--surface-solid)"
             strokeWidth={dense ? 0 : 1}
             radius={i === series.length - 1 && !dense ? [3, 3, 0, 0] : 0}
             isAnimationActive={false}
@@ -140,6 +162,8 @@ export function AreaSeries({
   fill?: boolean;
   curve?: "monotone" | "linear" | "stepAfter";
 }) {
+  const values = data.map((d) => d.v);
+  const ticks = niceTicks(Math.min(0, ...values), Math.max(0, ...values));
   return (
     <ResponsiveContainer width="100%" height={height}>
       <AreaChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: 0 }}>
@@ -152,7 +176,15 @@ export function AreaSeries({
           axisLine={{ stroke: "var(--axis)" }}
           minTickGap={28}
         />
-        <YAxis tickFormatter={tickFormat} tick={tick} tickLine={false} axisLine={false} width={52} />
+        <YAxis
+          tickFormatter={tickFormat}
+          ticks={ticks}
+          domain={[ticks[0], ticks.at(-1)!]}
+          tick={tick}
+          tickLine={false}
+          axisLine={false}
+          width={52}
+        />
         {zeroLine && <ReferenceLine y={0} stroke="var(--axis)" />}
         <Tooltip
           cursor={{ stroke: "var(--axis)", strokeWidth: 1 }}
@@ -174,7 +206,7 @@ export function AreaSeries({
           fill={color}
           fillOpacity={fill ? 0.1 : 0}
           dot={false}
-          activeDot={{ r: 4, fill: color, stroke: "var(--surface)", strokeWidth: 2 }}
+          activeDot={{ r: 4, fill: color, stroke: "var(--surface-solid)", strokeWidth: 2 }}
           isAnimationActive={false}
         />
       </AreaChart>

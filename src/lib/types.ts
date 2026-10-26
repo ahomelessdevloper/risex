@@ -110,6 +110,18 @@ export interface FundingHistory {
   points: FundingPoint[];
 }
 
+export interface PointsInfo {
+  /** e.g. "Week 14 (19-25 Oct UTC)" */
+  epochLabel: string | null;
+  nextDropMs: number | null;
+  weeklyPoints: number;
+  dropsSoFar: number;
+  distributedPoints: number;
+  /** Weekly drops in a full Season 1 (it ends no later than Q2 2027). */
+  seasonWeeks: number;
+  seasonPoints: number;
+}
+
 export const DEPTH_BANDS = [0.5, 1, 2] as const;
 
 export interface BookStats {

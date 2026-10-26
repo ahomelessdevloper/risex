@@ -63,7 +63,7 @@ export function Traders({ platformVolume }: { platformVolume: Record<LeaderWindo
       <div className={`flex flex-col gap-4 transition-opacity ${loading ? "opacity-50" : ""}`}>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
           <StatTile
-            label="Traded volume"
+            label={`Top ${entries.length || 100} traded volume`}
             value={usd(top100)}
             sub={share(top100) != null ? `${pct(share(top100)! * 100, 1, false)} of all volume` : scope}
           />
@@ -77,7 +77,7 @@ export function Traders({ platformVolume }: { platformVolume: Record<LeaderWindo
           <StatTile label="Trades" value={count(sum(entries.map((e) => e.trades)))} sub={scope} />
         </div>
 
-        <section className="overflow-hidden rounded-xl border border-line bg-surface">
+        <section className="glass-card overflow-hidden rounded-2xl border border-line bg-surface">
           <header className="flex flex-wrap items-baseline justify-between gap-2 px-4 pt-4 sm:px-5">
             <h2 className="text-sm font-semibold text-ink">Leaderboard</h2>
             <p className="text-xs text-muted">{scope}</p>

@@ -84,7 +84,7 @@ export function Funding({ markets, now }: { markets: Market[]; now: number }) {
                 <AreaSeries
                   data={points.map((p) => ({ t: p.t, v: p.apr }))}
                   name="Funding APR"
-                  height={260}
+                  height={420}
                   fill={false}
                   zeroLine
                   curve="linear"
@@ -94,7 +94,7 @@ export function Funding({ markets, now }: { markets: Market[]; now: number }) {
                   tickLabel={(t) => day(t)}
                 />
               ) : (
-                <div className="h-[260px]" />
+                <div className="h-[420px]" />
               )}
             </div>
           )}

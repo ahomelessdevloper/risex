@@ -101,7 +101,7 @@ export function Liquidity() {
         </ol>
       </Card>
 
-      <section className="overflow-hidden rounded-xl border border-line bg-surface">
+      <section className="glass-card overflow-hidden rounded-2xl border border-line bg-surface">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>

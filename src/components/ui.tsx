@@ -21,7 +21,7 @@ export function Card({
 }) {
   const [showTable, setShowTable] = useState(false);
   return (
-    <section className={`rounded-xl border border-line bg-surface p-4 sm:p-5 min-w-0 ${className}`}>
+    <section className={`glass-card rounded-2xl border border-line bg-surface p-4 sm:p-5 min-w-0 ${className}`}>
       {(title || actions || table) && (
         <header className="mb-4 flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
           <div className="min-w-0">
@@ -54,7 +54,7 @@ function DataTable({ columns, rows }: { columns: string[]; rows: ReactNode[][] }
   return (
     <div className="max-h-80 overflow-auto rounded-lg border border-line">
       <table className="w-full text-xs num">
-        <thead className="sticky top-0 bg-surface text-muted">
+        <thead className="sticky top-0 bg-[var(--surface-solid)] text-muted">
           <tr>
             {columns.map((c, i) => (
               <th key={c} className={`px-3 py-2 font-medium ${i ? "text-right" : "text-left"}`}>
@@ -93,10 +93,12 @@ export function StatTile({
   className?: string;
 }) {
   return (
-    <div className={`rounded-xl border border-line bg-surface p-4 min-w-0 ${className}`}>
+    <div
+      className={`glass-card rounded-2xl border border-line bg-surface p-4 min-w-0 ${hero ? "hero-glow" : ""} ${className}`}
+    >
       <div className="text-xs text-muted">{label}</div>
       <div
-        className={`mt-1 font-semibold tracking-tight text-ink ${hero ? "text-5xl sm:text-6xl" : "text-2xl"}`}
+        className={`mt-1 font-semibold tracking-tight ${hero ? "text-gradient text-5xl sm:text-6xl" : "text-2xl text-ink"}`}
       >
         {value}
       </div>
@@ -133,7 +135,8 @@ export function Segmented<T extends string>({
   size?: "sm" | "md";
 }) {
   return (
-    <div role="radiogroup" aria-label={label} className="inline-flex rounded-lg border border-line bg-page p-0.5">
+    <div role="radiogroup" aria-label={label} className="inline-flex rounded-xl border border-line bg-black/25 p-0.5 backdrop-blur">
+
       {options.map((o) => {
         const active = o.value === value;
         return (
@@ -143,9 +146,9 @@ export function Segmented<T extends string>({
             role="radio"
             aria-checked={active}
             onClick={() => onChange(o.value)}
-            className={`rounded-md font-medium transition-colors ${
+            className={`rounded-lg font-medium transition-colors ${
               size === "sm" ? "px-2 py-0.5 text-xs" : "px-3 py-1 text-sm"
-            } ${active ? "bg-surface text-ink shadow-sm ring-1 ring-line" : "text-muted hover:text-ink"}`}
+            } ${active ? "bg-white/12 text-ink shadow-sm ring-1 ring-white/15" : "text-muted hover:text-ink"}`}
           >
             {o.label}
           </button>

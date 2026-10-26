@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { AreaSeries, StackedBars } from "./charts";
 import { Card, Delta, FilterRow, Legend, Note, Segmented, StatTile } from "./ui";
-import { count, day, usd } from "@/lib/format";
+import { count, day, pct, usd } from "@/lib/format";
 import { CATEGORIES, categoryMeta, type Category, type DayVolume, type Overview as OverviewData, type SeriesPoint } from "@/lib/types";
 
 const DAY = 86_400_000;
@@ -41,6 +41,7 @@ export function Overview({ data }: { data: OverviewData }) {
   const today = Math.floor(data.updatedAt / DAY) * DAY;
   const vol24 = sum(markets.map((m) => m.volume24h));
   const oi = sum(markets.map((m) => m.oiUsd));
+  const fundingApr = oi ? sum(markets.map((m) => m.fundingApr * m.oiUsd)) / oi : null;
 
   const days = volume?.days ?? [];
   const complete = days.filter((d) => d.t < today);
@@ -58,8 +59,12 @@ export function Overview({ data }: { data: OverviewData }) {
   const inRange = <T extends { t: number }>(xs: T[]) => xs.filter((x) => x.t >= from);
   const shownDays = inRange(days);
   const bars = grain === "week" ? toWeeks(shownDays) : shownDays;
+  const cumulative: SeriesPoint[] = [];
   let running = sum(days.filter((d) => d.t < from).map((d) => d.total));
-  const cumulative: SeriesPoint[] = shownDays.map((d) => ({ t: d.t, v: (running += d.total) }));
+  for (const d of shownDays) {
+    running += d.total;
+    cumulative.push({ t: d.t, v: running });
+  }
   const series = activeCategories(days);
 
   const byCategory = CATEGORIES.map((c) => ({
@@ -126,6 +131,11 @@ export function Overview({ data }: { data: OverviewData }) {
           label="Volume / open interest"
           value={oi ? `${(vol24 / oi).toFixed(2)}×` : "—"}
           sub="24h turnover of open positions"
+        />
+        <StatTile
+          label="Funding APR · OI-weighted"
+          value={pct(fundingApr, 1)}
+          sub="Positive = longs pay shorts"
         />
       </div>
 

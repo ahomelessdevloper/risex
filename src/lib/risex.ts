@@ -13,6 +13,7 @@ import {
   type Market,
   type MarketVolume,
   type Overview,
+  type PointsInfo,
   type SeriesPoint,
   type VolumeHistory,
 } from "./types";
@@ -27,6 +28,14 @@ const NS_PER_MS = 1_000_000;
 const DAY_MS = 86_400_000;
 /** RISEx mainnet trading start (first daily candle). */
 const LAUNCH_MS = Date.UTC(2026, 3, 1);
+
+// Ignite Season 1 points schedule, per docs.risechain.com/docs/risex/rewards/points.
+const WEEK_MS = 7 * DAY_MS;
+const SEASON1_START_MS = Date.UTC(2026, 6, 20);
+const SEASON1_FIRST_DROP_MS = Date.UTC(2026, 6, 28, 14);
+/** "Ends no later than Q2 2027" — taken as the last day of June 2027. */
+const SEASON1_END_MS = Date.UTC(2027, 5, 30);
+const WEEKLY_POINTS = 200_000;
 
 interface RawMarket {
   market_id: string;
@@ -241,17 +250,13 @@ export async function getOiHistory(): Promise<SeriesPoint[]> {
 export async function getTvlHistory(): Promise<SeriesPoint[]> {
   "use cache";
   cacheLife("hours");
-  const d = await json<{
-    chainTvls: Record<string, { tvl: { date: number; totalLiquidityUSD: number }[] }>;
-  }>(`${LLAMA}/protocol/risex`);
+  const d = await json<{ tvl: { date: number; totalLiquidityUSD: number }[] }>(`${LLAMA}/protocol/risex`);
+  // DefiLlama appends an intraday "latest" point; keep the last value seen for each UTC day.
   const byDay = new Map<number, number>();
-  for (const series of Object.values(d.chainTvls)) {
-    for (const p of series.tvl) {
-      const day = Math.floor((p.date * 1000) / DAY_MS) * DAY_MS;
-      byDay.set(day, (byDay.get(day) ?? 0) + p.totalLiquidityUSD);
-    }
+  for (const p of [...d.tvl].sort((a, b) => a.date - b.date)) {
+    byDay.set(Math.floor((p.date * 1000) / DAY_MS) * DAY_MS, p.totalLiquidityUSD);
   }
-  return [...byDay.entries()].sort((a, b) => a[0] - b[0]).map(([t, v]) => ({ t, v }));
+  return [...byDay.entries()].map(([t, v]) => ({ t, v }));
 }
 
 const settle = <T,>(p: Promise<T>): Promise<T | null> =>
@@ -389,4 +394,27 @@ export async function getLiquidity(): Promise<BookStats[]> {
     });
   });
   return out;
+}
+
+interface RawEpoch {
+  epoch?: { description?: string; distribution_at?: string };
+}
+
+/** Season 1 points schedule plus the next scheduled drop from the RISEx API. */
+export async function getPointsInfo(): Promise<PointsInfo> {
+  "use cache";
+  cacheLife({ stale: 300, revalidate: 300, expire: 3600 });
+  const epoch = await api<RawEpoch>("/points/epoch/current").catch(() => ({}) as RawEpoch);
+  const now = Date.now();
+  const dropsSoFar = now < SEASON1_FIRST_DROP_MS ? 0 : Math.floor((now - SEASON1_FIRST_DROP_MS) / WEEK_MS) + 1;
+  const seasonWeeks = Math.floor((SEASON1_END_MS - SEASON1_START_MS) / WEEK_MS);
+  return {
+    epochLabel: epoch.epoch?.description ?? null,
+    nextDropMs: num(epoch.epoch?.distribution_at) * 1000 || null,
+    weeklyPoints: WEEKLY_POINTS,
+    dropsSoFar,
+    distributedPoints: dropsSoFar * WEEKLY_POINTS,
+    seasonWeeks,
+    seasonPoints: seasonWeeks * WEEKLY_POINTS,
+  };
 }

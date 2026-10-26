@@ -39,7 +39,7 @@ interface JsonState<T> {
 /**
  * Fetches JSON from `url`, optionally re-polling every `refreshMs` while the tab is visible.
  * When `url` changes the previous data is kept and `loading` is true until the new response lands.
- * Pass `initial` to seed the first render and skip the first request.
+ * Pass `initial` to seed the first render; it is refreshed right after mount.
  */
 export function useJson<T>(url: string | null, opts: { refreshMs?: number; initial?: T } = {}) {
   const { refreshMs, initial } = opts;
@@ -48,7 +48,6 @@ export function useJson<T>(url: string | null, opts: { refreshMs?: number; initi
     data: initial ?? null,
     error: null,
   }));
-  const seeded = initial !== undefined;
 
   useEffect(() => {
     if (!url) return;
@@ -65,7 +64,7 @@ export function useJson<T>(url: string | null, opts: { refreshMs?: number; initi
         setState((s) => ({ ...s, url, error: err instanceof Error ? err.message : String(err) }));
       }
     };
-    if (!seeded) load();
+    load();
     const id = refreshMs
       ? setInterval(() => {
           if (!document.hidden) load();
@@ -76,7 +75,7 @@ export function useJson<T>(url: string | null, opts: { refreshMs?: number; initi
       ctrl.abort();
       clearInterval(id);
     };
-  }, [url, refreshMs, seeded]);
+  }, [url, refreshMs]);
 
   return { data: state.data, error: state.error, loading: state.url !== url };
 }
